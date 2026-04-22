@@ -39,7 +39,7 @@ Generated projects can add their own object key conventions in app code.
 ## Agency runtime
 
 Agency provisions each company app as a standalone GitHub repository copied from this boilerplate.
-Northflank deploys the copied repository through the standard `build` and `start` scripts.
+Northflank deploys the copied repository through the included Dockerfile, which runs the standard `build` and `start` scripts.
 Agents should treat this repo as a normal Next.js webapp and use Drizzle/Postgres only when the product needs persistence.
 
 ## Scripts
