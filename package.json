@@ -1,0 +1,48 @@
+{
+  "name": "agency-web-boilerplate",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start",
+    "db:push": "drizzle-kit push",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix . && oxfmt --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.95.2",
+    "@trpc/client": "^11.15.0",
+    "@trpc/react-query": "^11.15.0",
+    "@trpc/server": "^11.15.0",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.1",
+    "next": "^16.2.1",
+    "postgres": "^3.4.8",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "superjson": "^2.2.6",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "drizzle-kit": "^0.31.10",
+    "oxfmt": "^0.41.0",
+    "oxlint": "^1.56.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.32.1"
+}
