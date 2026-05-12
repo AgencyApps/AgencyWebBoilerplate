@@ -1,8 +1,20 @@
 # Agency SDK
 
 Use the local `agency/sdk/*` modules before adding bespoke platform integrations.
+This public boilerplate is the canonical Agency SDK reference for generated apps, older generated repos, and bring-your-own codebases.
+Generated apps receive this SDK substrate by default.
+
+When an older or BYO repo needs Agency SDK support, vendor only the integration substrate it needs from this repo:
+
+- the required `agency/sdk/*` modules,
+- this `AGENCY_SDK.md` file plus `agency/sdk/INTEGRATIONS.md` when local guidance is absent or stale,
+- the `agency/*` TypeScript path alias when imports would not resolve,
+- `src/pages/api/agency/analytics.ts` only when browser analytics needs the local proxy route.
+
+Preserve product-specific app work instead of resetting unrelated files from the boilerplate.
 
 Agency injects the matching `AGENCY_*` env vars at runtime when a module is enabled for the app. Treat these helpers as the default integration surface.
+Do not store live Agency runtime credentials in the repo.
 Agency exposes the control-plane API at `https://agency.weights.com`; generated apps should use the injected URLs rather than inventing local API endpoints.
 
 For integration-specific implementation steps and dashboard activation rules, also read `agency/sdk/INTEGRATIONS.md`.
