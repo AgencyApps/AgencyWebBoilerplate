@@ -1,0 +1,7 @@
+interface:
+  display_name: "Agency"
+  short_description: "Bootstrap and ship Agency apps"
+  default_prompt: "Use $agency to bootstrap this app from AgencyWebBoilerplate and prepare the first Agency push."
+
+policy:
+  allow_implicit_invocation: true

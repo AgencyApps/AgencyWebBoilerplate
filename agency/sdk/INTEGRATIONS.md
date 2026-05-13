@@ -5,14 +5,17 @@ Agency keeps Auth, Billing, and Analytics behind an explicit init-event gate. Im
 ## Auth
 
 - Import from `agency/sdk/auth`.
-- Use `getAgencyAuthConfig()` for runtime URLs and app identity.
-- Exchange the Agency session token with `exchangeAgencyAuthToken(...)` in the real sign-in flow.
-- The first successful exchange emits the Auth init signal from Agency automatically.
+- Keep `src/pages/api/agency/auth/*`; those routes handle the redirect start, callback exchange, app session lookup, and app-local sign-out.
+- Import `useAgencyAuth()` from `agency/sdk/auth-react` in the app UI when you need Sign in with Agency, the current propagated user, or linked account provider metadata.
+- Use `getAgencyAuthSession(...)` from `agency/sdk/auth` in trusted server code when an API route needs the current Agency-backed app user.
+- The first successful redirect-code exchange emits the Auth init signal from Agency automatically and fills the Auth/Customers dashboards.
 
 ## Billing
 
 - Import from `agency/sdk/payments`.
-- Use Agency's merchant-of-record helpers for products, prices, checkout, refunds, and billing reads.
+- Use Agency's merchant-of-record helpers for products, prices, checkout, refunds, billing reads, and normalized billing event reads.
+- Build success and cancel customer UX, but do not mark an order paid solely from the success URL redirect.
+- Use `listAgencyPaymentEvents()` or typed billing reads for fulfillment or entitlement state backed by Agency's signed Stripe webhook processing.
 - Do not add Stripe credentials or a Stripe SDK directly to the app.
 - Once billing is wired in trusted server code, call:
 

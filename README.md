@@ -25,6 +25,18 @@ pnpm dev
 pnpm db:push
 ```
 
+## Codex Agency skill
+
+This repo publishes the reusable Codex skill at `.agents/skills/agency`.
+
+From Codex, install it with:
+
+```text
+Use $skill-installer to install the Agency skill from https://github.com/AgencyApps/AgencyWebBoilerplate/tree/main/.agents/skills/agency
+```
+
+Restart Codex after install, then use `$agency` when you want Codex to bootstrap an Agency app, keep the app on the expected platform conventions, or complete the first Agency push.
+
 ## Optional R2
 
 Set these only when the app needs blob storage:
@@ -46,6 +58,7 @@ When an older or BYO repo needs Agency SDK support, vendor only the pieces that 
 - the required `agency/sdk/*` modules,
 - `AGENCY_SDK.md` plus `agency/sdk/INTEGRATIONS.md` when local guidance is absent or stale,
 - the `agency/*` TypeScript path alias when the target repo cannot resolve those imports,
+- `src/pages/api/agency/auth/*` when the target app needs Sign in with Agency,
 - `src/pages/api/agency/analytics.ts` only when browser analytics needs the local proxy route.
 
 Preserve the target app's product-specific work instead of resetting unrelated files from this boilerplate.
@@ -53,6 +66,7 @@ Northflank deploys the copied repository through the included Dockerfile, which 
 Agents should treat this repo as a normal Next.js webapp and use Drizzle/Postgres only when the product needs persistence.
 This boilerplate includes local `agency/sdk/*` helpers for auth, database, payments, analytics, and platform reads.
 Agency injects the correctly scoped `AGENCY_*` and `DATABASE_URL` bindings for enabled modules at runtime; use those SDKs before adding bespoke provider code, and do not store live runtime credentials in the repo.
+Auth is wired as a redirect-code Sign in with Agency flow. The starter page already exposes it through `useAgencyAuth()`, and the bundled `/api/agency/auth/*` routes handle the server exchange, HttpOnly app session cookie, current user/account lookup, and local sign-out.
 For billing, Agency is the merchant of record, so use `agency/sdk/payments` instead of adding Stripe directly.
 For product analytics, use `agency/sdk/analytics` on the server and `agency/sdk/analytics-react` in the browser. The default app shell already mounts a page-view tracker that records `page_viewed` when analytics is enabled.
 
