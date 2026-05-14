@@ -63,6 +63,7 @@ export type AgencyBillingPrice = {
 export type AgencyBillingProduct = {
   id: string;
   providerProductId: string;
+  catalogKey: string | null;
   name: string;
   description: string | null;
   active: boolean;
@@ -214,20 +215,6 @@ export type AgencyBillingCheckoutResult = {
   subEntityId: string;
 };
 
-export const initializeAgencyPaymentsIntegration = async () =>
-  await paymentsFetch<{
-    accepted: true;
-    eventId: string;
-    eventType: string;
-    initializedAt: string;
-    reused: boolean;
-  }>("/initialize", {
-    method: "POST",
-    body: JSON.stringify({
-      appId: requireEnv("AGENCY_PAYMENTS_APP_ID"),
-    }),
-  });
-
 export type AgencyPaymentsPriceInput = {
   unitAmount: number;
   currency: string;
@@ -244,6 +231,21 @@ export type AgencyPaymentsProductInput = {
   active?: boolean;
   metadata?: Record<string, string | number | boolean>;
   prices?: AgencyPaymentsPriceInput[];
+};
+
+export type AgencyPaymentsCatalogProductInput = {
+  catalogKey: string;
+  name: string;
+  description?: string;
+  active?: boolean;
+  metadata?: Record<string, string | number | boolean>;
+  prices: AgencyPaymentsPriceInput[];
+};
+
+export type AgencyPaymentsCatalogProductResult = {
+  product: AgencyBillingProduct;
+  defaultPrice: AgencyBillingPrice;
+  created: boolean;
 };
 
 export type AgencyPaymentsCheckoutLineItem = {
@@ -272,6 +274,15 @@ export const listAgencyProducts = async () =>
 
 export const createAgencyProduct = async (input: AgencyPaymentsProductInput) =>
   await paymentsFetch<{ product: AgencyBillingProduct }>("/products", {
+    method: "POST",
+    body: JSON.stringify({
+      appId: requireEnv("AGENCY_PAYMENTS_APP_ID"),
+      ...input,
+    }),
+  });
+
+export const upsertAgencyProduct = async (input: AgencyPaymentsCatalogProductInput) =>
+  await paymentsFetch<AgencyPaymentsCatalogProductResult>("/products/upsert", {
     method: "POST",
     body: JSON.stringify({
       appId: requireEnv("AGENCY_PAYMENTS_APP_ID"),

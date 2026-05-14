@@ -1,6 +1,6 @@
 # Integration implementation notes
 
-Agency keeps Auth, Billing, and Analytics behind an explicit init-event gate. Implement the module in app code first, then emit the matching init signal so Agency can show the live dashboard.
+Agency keeps Auth, Billing, and Analytics behind an explicit readiness gate. Implement the module in app code first, then send the matching readiness probe so Agency can open the live surface.
 
 ## Auth
 
@@ -8,22 +8,25 @@ Agency keeps Auth, Billing, and Analytics behind an explicit init-event gate. Im
 - Keep `src/pages/api/agency/auth/*`; those routes handle the redirect start, callback exchange, app session lookup, and app-local sign-out.
 - Import `useAgencyAuth()` from `agency/sdk/auth-react` in the app UI when you need Sign in with Agency, the current propagated user, or linked account provider metadata.
 - Use `getAgencyAuthSession(...)` from `agency/sdk/auth` in trusted server code when an API route needs the current Agency-backed app user.
-- The first successful redirect-code exchange emits the Auth init signal from Agency automatically and fills the Auth/Customers dashboards.
+- The first successful redirect-code exchange marks Auth live from Agency automatically and fills the Auth/Customers data path.
 
 ## Billing
 
 - Import from `agency/sdk/payments`.
 - Use Agency's merchant-of-record helpers for products, prices, checkout, refunds, billing reads, and normalized billing event reads.
+- For natural-language tasks like adding a product, prefer `upsertAgencyProduct(...)` with a stable `catalogKey` so repeated runs reconcile the same catalog item instead of duplicating it.
 - Build success and cancel customer UX, but do not mark an order paid solely from the success URL redirect.
 - Use `listAgencyPaymentEvents()` or typed billing reads for fulfillment or entitlement state backed by Agency's signed Stripe webhook processing.
 - Do not add Stripe credentials or a Stripe SDK directly to the app.
 - Once billing is wired in trusted server code, call:
 
 ```ts
-import { initializeAgencyPaymentsIntegration } from "agency/sdk/payments";
+import { initializeAgencyIntegration } from "agency/sdk/platform";
 
-await initializeAgencyPaymentsIntegration();
+await initializeAgencyIntegration("billing");
 ```
+
+Accepted normalized billing events also mark Payments live if the explicit probe was skipped.
 
 ## Analytics
 
@@ -33,10 +36,12 @@ await initializeAgencyPaymentsIntegration();
 - Once analytics hooks are present, call:
 
 ```ts
-import { initializeAgencyAnalyticsIntegration } from "agency/sdk/analytics";
+import { initializeAgencyIntegration } from "agency/sdk/platform";
 
-await initializeAgencyAnalyticsIntegration();
+await initializeAgencyIntegration("analytics");
 ```
+
+Accepted analytics events also mark Analytics live if the explicit probe was skipped.
 
 ## Runtime assumptions
 

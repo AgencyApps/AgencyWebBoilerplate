@@ -84,14 +84,6 @@ export const trackAgencyEvent = async (input: AgencyAnalyticsEventInput) => {
 
 export const trackAgencyServerEvent = trackAgencyEvent;
 
-export const initializeAgencyAnalyticsIntegration = async () =>
-  await trackAgencyEvent({
-    name: "integration_initialized",
-    properties: {
-      module: "analytics",
-    },
-  });
-
 export const trackAgencyBrowserEvent = async (
   input: AgencyAnalyticsEventInput,
   options: { endpoint?: string } = {},

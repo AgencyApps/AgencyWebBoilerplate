@@ -30,7 +30,7 @@ For integration-specific implementation steps and dashboard activation rules, al
 - `agency/sdk/database`
   - Read the app database binding with `getAgencyDatabaseConfig()`.
 - `agency/sdk/payments`
-  - Create products, prices, checkout sessions, and refunds.
+  - Reconcile catalog products with stable keys, create prices, create checkout sessions, and issue refunds.
   - Read billing dashboard, catalog data, and normalized billing events.
 - `agency/sdk/analytics`
   - Send normalized product or business events with `trackAgencyEvent(...)`.
@@ -44,7 +44,7 @@ For integration-specific implementation steps and dashboard activation rules, al
 
 ## Payments
 
-- Import `agency/sdk/payments` for catalog writes, checkout creation, refunds, billing reads, and payment event reads.
+- Import `agency/sdk/payments` for catalog reconciliation, catalog writes, checkout creation, refunds, billing reads, and payment event reads.
 - The Agency platform is the merchant of record.
 - This repo should never contain direct Stripe keys or a direct Stripe SDK integration.
 - The Agency runtime injects:
@@ -53,17 +53,37 @@ For integration-specific implementation steps and dashboard activation rules, al
   - `AGENCY_PAYMENTS_ACCESS_TOKEN`
 
 Write helpers in `agency/sdk/payments` are server-only. Call them from API routes, server actions, or other trusted server code.
+When a product or paid tier should survive repeated agent runs without duplicates, use `upsertAgencyProduct(...)` with a stable lowercase `catalogKey`. The helper creates or updates the Agency catalog product, reuses an equivalent default price when possible, and creates a new default price when the pricing materially changes.
 Use `listAgencyPaymentEvents()` or the typed dashboard read when product code needs payment-backed fulfillment state. Treat Agency billing events backed by signed Stripe webhooks as payment truth; a redirect to a checkout success URL is customer UX, not confirmation that funds landed.
+
+Example catalog reconciliation:
+
+```ts
+import { upsertAgencyProduct } from "agency/sdk/payments";
+
+const proPlan = await upsertAgencyProduct({
+  catalogKey: "pro-plan",
+  name: "Pro Plan",
+  prices: [
+    {
+      currency: "usd",
+      interval: "month",
+      type: "recurring",
+      unitAmount: 2900,
+    },
+  ],
+});
+```
 
 Once the billing flow is wired, call:
 
 ```ts
-import { initializeAgencyPaymentsIntegration } from "agency/sdk/payments";
+import { initializeAgencyIntegration } from "agency/sdk/platform";
 
-await initializeAgencyPaymentsIntegration();
+await initializeAgencyIntegration("billing");
 ```
 
-That emits the Billing init signal Agency waits for before showing the live Billing dashboard.
+That emits the Billing readiness probe Agency waits for before showing the live Payments surface. Accepted billing events also mark Payments live if the explicit probe was skipped.
 
 ## Auth
 
@@ -113,7 +133,7 @@ For server code that needs the current user, read the app cookie in your route a
 - Use `trackAgencyServerEvent(...)` from trusted server code when you already have access to injected env vars.
 - Use `trackAgencyBrowserEvent(...)` or `useAgencyAnalytics()` from React code to send client events through the local `/api/agency/analytics` proxy route.
 - The default `_app.tsx` mounts a page-view tracker, so `page_viewed` events start flowing automatically once the analytics module is enabled.
-- After analytics hooks are in place, call `initializeAgencyAnalyticsIntegration()` from trusted server code. Agency waits for that init event before showing the live Analytics dashboard.
+- After analytics hooks are in place, call `initializeAgencyIntegration("analytics")` from `agency/sdk/platform` in trusted server code. Agency waits for that readiness probe before showing live Analytics overview content. Accepted analytics events also mark Analytics live if the explicit probe was skipped.
 
 Example browser usage:
 
