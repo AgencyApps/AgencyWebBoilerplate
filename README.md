@@ -25,28 +25,20 @@ pnpm dev
 pnpm db:push
 ```
 
-## Codex Agency skill
+## Codex Agency plugin and skill
 
-This repo publishes the reusable Codex skill at `.agents/skills/agency`.
+This repo publishes:
 
-From Codex, install it with:
+- the Agency Codex plugin at `plugins/agency`, which owns OAuth and developer control-plane tools,
+- the reusable `$agency` skill at `.agents/skills/agency`, which keeps Codex on the expected Agency workflow.
+
+From Codex, install both artifacts:
 
 ```text
-Use $skill-installer to install the Agency skill from https://github.com/AgencyApps/AgencyWebBoilerplate/tree/main/.agents/skills/agency
+Install the Agency Codex plugin from https://github.com/AgencyApps/AgencyWebBoilerplate/tree/main/plugins/agency and install the Agency skill from https://github.com/AgencyApps/AgencyWebBoilerplate/tree/main/.agents/skills/agency.
 ```
 
-Restart Codex after install, then use `$agency` when you want Codex to bootstrap an Agency app, keep the app on the expected platform conventions, or complete the first Agency push.
-
-## Optional R2
-
-Set these only when the app needs blob storage:
-
-- `R2_ACCOUNT_ID`
-- `R2_ACCESS_KEY_ID`
-- `R2_SECRET_ACCESS_KEY`
-- `R2_BUCKET`
-
-Generated projects can add their own object key conventions in app code.
+Restart Codex after install. The plugin connects to Agency through OAuth with the `agency.developer.full_access` grant, discovers the correct company from Agency remotes when possible, syncs Agency-managed bindings into `.env.local`, and exposes deploy, integration, agent, routine, event, and Payments tools. Use `$agency` for product work so Codex starts with capability discovery, syncs env before DB/platform-dependent edits, and ships through both the developer origin and the Agency deploy remote.
 
 ## Agency runtime
 
@@ -63,12 +55,13 @@ When an older or BYO repo needs Agency SDK support, vendor only the pieces that 
 
 Preserve the target app's product-specific work instead of resetting unrelated files from this boilerplate.
 Northflank deploys the copied repository through the included Dockerfile, which runs the standard `build` and `start` scripts.
-Agents should treat this repo as a normal Next.js webapp and use Drizzle/Postgres only when the product needs persistence.
-This boilerplate includes local `agency/sdk/*` helpers for auth, database, payments, analytics, and platform reads.
+Agents should treat this repo as a normal Next.js webapp and use Drizzle/Postgres only when the product needs persistence. When it does, sync the Agency local env first and use Agency's hosted `DATABASE_URL`, then run `pnpm db:push`.
+This boilerplate includes local `agency/sdk/*` helpers for auth, database, payments, analytics, public asset storage, and platform reads.
 Agency injects the correctly scoped `AGENCY_*` and `DATABASE_URL` bindings for enabled modules at runtime; use those SDKs before adding bespoke provider code, and do not store live runtime credentials in the repo.
 Auth is wired as a redirect-code Sign in with Agency flow. The starter page already exposes it through `useAgencyAuth()`, and the bundled `/api/agency/auth/*` routes handle the server exchange, HttpOnly app session cookie, current user/account lookup, and local sign-out.
 For billing, Agency is the merchant of record, so use `agency/sdk/payments` instead of adding Stripe directly.
 For product analytics, use `agency/sdk/analytics` on the server and `agency/sdk/analytics-react` in the browser. The default app shell already mounts a page-view tracker that records `page_viewed` when analytics is enabled.
+For public uploaded assets, use `agency/sdk/storage` to mint short-lived direct-upload URLs and delete owned public asset objects. Persist returned keys or public URLs in app data instead of adding raw R2 credentials to the repo.
 
 ## Scripts
 

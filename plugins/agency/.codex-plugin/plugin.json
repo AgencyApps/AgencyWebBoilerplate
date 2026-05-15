@@ -1,0 +1,32 @@
+{
+  "name": "agency",
+  "version": "1.0.0",
+  "description": "Connect Codex to Agency developer control-plane APIs for environment sync, deploys, agents, routines, and platform-backed app work.",
+  "author": {
+    "name": "Agency",
+    "email": "support@agency.weights.com",
+    "url": "https://agency.weights.com"
+  },
+  "homepage": "https://agency.weights.com",
+  "repository": "https://github.com/AgencyApps/AgencyWebBoilerplate",
+  "license": "MIT",
+  "keywords": ["agency", "codex", "deploy", "agents", "routines", "postgres", "payments"],
+  "skills": "../../.agents/skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Agency",
+    "shortDescription": "Develop and operate Agency-backed apps from Codex",
+    "longDescription": "Use Agency to discover company capabilities, sync local runtime bindings, manage deploys, agents, routines, platform integrations, and payments-backed product setup from Codex.",
+    "developerName": "Agency",
+    "category": "Coding",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "websiteURL": "https://agency.weights.com",
+    "defaultPrompt": [
+      "Connect Agency and prepare this repo for local development",
+      "Add a paid product, wire checkout, and ship both remotes",
+      "Create a signup follow-up routine with Agency tools"
+    ],
+    "brandColor": "#111111",
+    "screenshots": []
+  }
+}

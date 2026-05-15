@@ -1,4 +1,4 @@
-export type AgencyModuleKind = "auth" | "database" | "billing" | "analytics";
+export type AgencyModuleKind = "auth" | "database" | "billing" | "analytics" | "storage";
 
 export type AgencyPlatformCapability = "events" | "lifecycles";
 

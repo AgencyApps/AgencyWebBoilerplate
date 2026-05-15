@@ -17,6 +17,7 @@ Preserve product-specific app work instead of resetting unrelated files from the
 Agency injects the matching `AGENCY_*` env vars at runtime when a module is enabled for the app. Treat these helpers as the default integration surface.
 Do not store live Agency runtime credentials in the repo.
 Agency exposes the control-plane API at `https://agency.weights.com`; generated apps should use the injected URLs rather than inventing local API endpoints.
+For local Codex work, use the Agency plugin's company discovery and env-sync tools before DB-dependent or platform-dependent edits. The plugin writes only the Agency-managed section of `.env.local`, preserves unrelated keys, and can wait for Agency-hosted Postgres provisioning before returning a usable `DATABASE_URL`.
 
 For integration-specific implementation steps and dashboard activation rules, also read `agency/sdk/INTEGRATIONS.md`.
 
@@ -37,6 +38,8 @@ For integration-specific implementation steps and dashboard activation rules, al
 - `agency/sdk/analytics-react`
   - Use `useAgencyAnalytics()` for client-side event recording.
   - Use `useAgencyPageView()` or `<AgencyAnalyticsPageTracker />` for page-view hooks.
+- `agency/sdk/storage`
+  - Mint short-lived direct-upload URLs for public assets and delete objects owned by this app.
 - `agency/sdk/platform`
   - Read the Agency module manifest and platform event feed for this app.
 - `agency/sdk/types`
@@ -163,6 +166,20 @@ export function UpgradeButton() {
 
 - `agency/sdk/database` reads:
   - `DATABASE_URL`
+- Local development should use the hosted Agency database binding pulled into `.env.local`, not a separate ad hoc Postgres target.
+- After schema changes, run `pnpm db:push`; do not introduce migrations in this boilerplate flow.
+
+## Storage
+
+- `agency/sdk/storage` reads:
+  - `AGENCY_STORAGE_BASE_URL`
+  - `AGENCY_STORAGE_APP_ID`
+  - `AGENCY_STORAGE_PUBLIC_BASE_URL`
+  - `AGENCY_STORAGE_ACCESS_TOKEN`
+- Use `createAgencyStorageUpload(...)` from trusted server code to mint a short-lived direct-upload URL, then let the browser upload bytes to that returned URL with the returned headers.
+- Persist the returned `key` or `publicUrl` in the app database when the product needs to reference the uploaded asset later.
+- Use `deleteAgencyStorageObject(...)` from trusted server code when an app-owned public asset should be removed.
+- Storage v1 is public-read asset storage. Do not store private artifacts, user secrets, or credentials in this surface, and do not add raw R2 credentials to the repo.
 
 ## Platform
 

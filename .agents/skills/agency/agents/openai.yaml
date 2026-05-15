@@ -1,7 +1,7 @@
 interface:
   display_name: "Agency"
-  short_description: "Build and ship Agency company changes"
-  default_prompt: "Use $agency to implement this Agency company change with the bundled SDKs, verify it, and ship the repo update when delivery is implied."
+  short_description: "Develop and operate Agency-backed apps"
+  default_prompt: "Use $agency plus the Agency plugin tools to inspect the company, sync local env when needed, implement the product change, and ship both remotes when delivery is implied."
 
 policy:
   allow_implicit_invocation: true

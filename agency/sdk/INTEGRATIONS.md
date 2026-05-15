@@ -1,6 +1,7 @@
 # Integration implementation notes
 
 Agency keeps Auth, Billing, and Analytics behind an explicit readiness gate. Implement the module in app code first, then send the matching readiness probe so Agency can open the live surface.
+When Codex is available, use the Agency plugin to discover the company, sync Agency-managed local env first, inspect readiness, and perform Agency account-side setup through developer tools instead of guessing dashboard state.
 
 ## Auth
 
@@ -43,8 +44,17 @@ await initializeAgencyIntegration("analytics");
 
 Accepted analytics events also mark Analytics live if the explicit probe was skipped.
 
+## Storage
+
+- Import from `agency/sdk/storage`.
+- Treat this module as public asset storage for uploads such as images, logos, and documents intended for public display.
+- Request upload tickets from trusted server code, upload bytes directly from the browser with the returned presigned URL and headers, then persist the returned key or public URL in app data.
+- Use the storage delete helper when an app-owned public object should be removed.
+- Do not add raw R2 credentials or use this public asset module for private files, secrets, or credentials.
+
 ## Runtime assumptions
 
 - Agency injects the scoped `AGENCY_*` values when the module is enabled.
+- The Codex plugin-managed `.env.local` block is the local-development mirror of those bindings; preserve unrelated entries around it.
 - The live Agency control-plane domain is `https://agency.weights.com`.
 - Do not fake init events or emit them before the product flow exists; the Agency dashboard treats them as the readiness boundary.
